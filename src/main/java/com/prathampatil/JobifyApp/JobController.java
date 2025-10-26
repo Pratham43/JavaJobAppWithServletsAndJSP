@@ -5,38 +5,70 @@ import com.prathampatil.JobifyApp.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
+@CrossOrigin( origins = "http://localhost:3000")
 public class JobController {
 
     @Autowired
     private JobService service;
 
-    @GetMapping({"/", "home"})
-    public String home(){
-        return "home";
+
+
+
+    @GetMapping("jobPosts")
+    public List<JobPost> getAllJobs() {
+        return service.getAllJobs();
+
     }
 
-    @GetMapping("addjob")
-    public String addJob(){
-        return "addjob";
+
+    @GetMapping("JobPosts/keyword/{keyword}")
+    public List<JobPost> searchByKeyword(@PathVariable("keyword") String keyword){
+        return service.search(keyword);
     }
 
-    @PostMapping("handleForm")
-    public String handleForm(JobPost jobPost){
+
+    @GetMapping("/jobPost/{postId}")
+    public JobPost getJob(@PathVariable int postId) {
+        return service.getJob(postId);
+    }
+
+
+
+
+    @PostMapping("jobPost")
+    public JobPost addJob(@RequestBody JobPost jobPost) {
         service.addJob(jobPost);
+        return service.getJob(jobPost.getPostId());
+    }
+
+
+
+    @PutMapping("jobPost")
+    public JobPost updateJob(@RequestBody JobPost jobPost) {
+        service.updateJob(jobPost);
+        return service.getJob(jobPost.getPostId());
+    }
+
+
+
+
+    @DeleteMapping("jobPost/{postId}")
+    public String deleteJob(@PathVariable int postId)
+    {
+        service.deleteJob(postId);
+        return "Deleted";
+    }
+
+
+    @GetMapping("load")
+    public String loadData() {
+        service.load();
         return "success";
     }
 
-    @GetMapping("viewalljobs")
-    public String viewJobs(Model m){
-        List<JobPost> jobsList = service.getAllJobs();
-        m.addAttribute("jobPosts",jobsList);
-        return "viewalljobs";
-    }
 }
